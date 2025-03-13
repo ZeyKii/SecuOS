@@ -704,3 +704,195 @@ write(1, "Hello World !\n", 14) = 14
 ------ ----------- ----------- --------- --------- ----------------
 100.00    0.021917          41       522        17 total
 ```
+
+🌞 Utiliser sysdig pour tracer les syscalls effectués par ls
+
+```
+[fmaxance@vbox ~]$ sudo sysdig proc.name=ls
+1832 14:31:23.530858089 1 ls (1410.1410) < execve res=0 exe=ls args=--color=auto.CYBER/. tid=1410(ls) pid=1410(ls) ptid=1367(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=30 vm_size=524 vm_rss=0 vm_swap=0 comm=ls cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1410(ls) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33899672 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/ls
+1833 14:31:23.530876301 1 ls (1410.1410) > brk addr=0
+1834 14:31:23.530876795 1 ls (1410.1410) < brk res=564D521B0000 vm_size=524 vm_rss=128 vm_swap=0
+1842 14:31:23.531970430 1 ls (1410.1410) > arch_prctl
+1843 14:31:23.531971486 1 ls (1410.1410) < arch_prctl
+1844 14:31:23.531990664 1 ls (1410.1410) > access mode=4(R_OK)
+1845 14:31:23.531996099 1 ls (1410.1410) < access res=-2(ENOENT) name=/etc/ld.so.preload
+1846 14:31:23.532001446 1 ls (1410.1410) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+1847 14:31:23.532006428 1 ls (1410.1410) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=33685637
+1848 14:31:23.532007198 1 ls (1410.1410) > fstat fd=3(<f>/etc/ld.so.cache)
+1849 14:31:23.532008213 1 ls (1410.1410) < fstat res=0
+1850 14:31:23.532008645 1 ls (1410.1410) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
+1851 14:31:23.532014171 1 ls (1410.1410) < mmap res=140714228027392 vm_size=540 vm_rss=128 vm_swap=0
+1852 14:31:23.532014599 1 ls (1410.1410) > close fd=3(<f>/etc/ld.so.cache)
+1853 14:31:23.532014883 1 ls (1410.1410) < close res=0
+1854 14:31:23.532018126 1 ls (1410.1410) > openat dirfd=-100(AT_FDCWD) name=/lib64/libselinux.so.1 flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+1855 14:31:23.532022135 1 ls (1410.1410) < openat fd=3(<f>/lib64/libselinux.so.1) dirfd=-100(AT_FDCWD) name=/lib64/libselinux.so.1 flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=50505414
+1856 14:31:23.532022519 1 ls (1410.1410) > read fd=3(<f>/lib64/libselinux.so.1) size=832
+1857 14:31:23.532024066 1 ls (1410.1410) < read res=832 data=.ELF..............>.....pp......@...................@.8...@.....................
+1858 14:31:23.532024819 1 ls (1410.1410) > fstat fd=3(<f>/lib64/libselinux.so.1)
+1859 14:31:23.532025124 1 ls (1410.1410) < fstat res=0
+1860 14:31:23.532025417 1 ls (1410.1410) > mmap addr=0 length=8192 prot=3(PROT_READ|PROT_WRITE) flags=10(MAP_PRIVATE|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+1861 14:31:23.532027401 1 ls (1410.1410) < mmap res=140714228019200 vm_size=548 vm_rss=128 vm_swap=0
+1862 14:31:23.532029333 1 ls (1410.1410) > mmap addr=0 length=181896 prot=1(PROT_READ) flags=1026(MAP_PRIVATE|MAP_DENYWRITE) fd=3(<f>/lib64/libselinux.so.1) offset=0
+1863 14:31:23.532032015 1 ls (1410.1410) < mmap res=140714227834880 vm_size=728 vm_rss=128 vm_swap=0
+1864 14:31:23.532032243 1 ls (1410.1410) > mmap addr=7FFA95910000 length=110592 prot=5(PROT_READ|PROT_EXEC) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libselinux.so.1) offset=24576
+1865 14:31:23.532038842 1 ls (1410.1410) < mmap res=140714227859456 vm_size=728 vm_rss=128 vm_swap=0
+1866 14:31:23.532039055 1 ls (1410.1410) > mmap addr=7FFA9592B000 length=32768 prot=1(PROT_READ) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libselinux.so.1) offset=135168
+1867 14:31:23.532042932 1 ls (1410.1410) < mmap res=140714227970048 vm_size=728 vm_rss=128 vm_swap=0
+1868 14:31:23.532043130 1 ls (1410.1410) > mmap addr=7FFA95933000 length=8192 prot=3(PROT_READ|PROT_WRITE) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libselinux.so.1) offset=163840
+1869 14:31:23.532046705 1 ls (1410.1410) < mmap res=140714228002816 vm_size=728 vm_rss=128 vm_swap=0
+1870 14:31:23.532048750 1 ls (1410.1410) > mmap addr=7FFA95935000 length=5768 prot=3(PROT_READ|PROT_WRITE) flags=14(MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+1871 14:31:23.532050704 1 ls (1410.1410) < mmap res=140714228011008 vm_size=728 vm_rss=128 vm_swap=0
+...
+2212 14:31:23.532792935 1 ls (1410.1410) > write fd=1(<f>/dev/pts/1) size=39
+2213 14:31:23.532797721 1 ls (1410.1410) > switch next=31 pgft_maj=0 pgft_min=135 vm_size=6528 vm_rss=2304 vm_swap=0
+2215 14:31:23.532937709 1 ls (1410.1410) < write res=39 data=hello  .[0m.[01;36mmonsupermp3.mp3.[0m.
+2216 14:31:23.532938721 1 ls (1410.1410) > switch next=31 pgft_maj=0 pgft_min=135 vm_size=6528 vm_rss=2304 vm_swap=0
+2218 14:31:23.532941965 1 ls (1410.1410) > rt_sigaction
+2219 14:31:23.532942446 1 ls (1410.1410) < rt_sigaction
+2220 14:31:23.532942662 1 ls (1410.1410) > rt_sigaction
+2221 14:31:23.532942818 1 ls (1410.1410) < rt_sigaction
+2222 14:31:23.532942948 1 ls (1410.1410) > rt_sigaction
+2223 14:31:23.532943085 1 ls (1410.1410) < rt_sigaction
+2224 14:31:23.532943217 1 ls (1410.1410) > rt_sigaction
+2225 14:31:23.532943377 1 ls (1410.1410) < rt_sigaction
+2226 14:31:23.532943508 1 ls (1410.1410) > rt_sigaction
+2227 14:31:23.532943635 1 ls (1410.1410) < rt_sigaction
+2228 14:31:23.532943775 1 ls (1410.1410) > rt_sigaction
+2229 14:31:23.532943899 1 ls (1410.1410) < rt_sigaction
+2230 14:31:23.532944030 1 ls (1410.1410) > rt_sigaction
+2231 14:31:23.532944155 1 ls (1410.1410) < rt_sigaction
+2232 14:31:23.532944455 1 ls (1410.1410) > rt_sigaction
+2233 14:31:23.532944657 1 ls (1410.1410) < rt_sigaction
+2234 14:31:23.532944796 1 ls (1410.1410) > rt_sigaction
+2235 14:31:23.532944922 1 ls (1410.1410) < rt_sigaction
+2236 14:31:23.532945054 1 ls (1410.1410) > rt_sigaction
+2237 14:31:23.532945176 1 ls (1410.1410) < rt_sigaction
+2238 14:31:23.532945308 1 ls (1410.1410) > rt_sigaction
+2239 14:31:23.532945431 1 ls (1410.1410) < rt_sigaction
+2240 14:31:23.532945584 1 ls (1410.1410) > rt_sigaction
+2241 14:31:23.532945712 1 ls (1410.1410) < rt_sigaction
+2242 14:31:23.532947217 1 ls (1410.1410) > close fd=1(<f>/dev/pts/1)
+2243 14:31:23.532947644 1 ls (1410.1410) < close res=0
+2244 14:31:23.532948204 1 ls (1410.1410) > close fd=2(<f>/dev/pts/1)
+2245 14:31:23.532948323 1 ls (1410.1410) < close res=0
+2252 14:31:23.532961968 1 ls (1410.1410) > exit_group
+2262 14:31:23.533029559 1 ls (1410.1410) > procexit status=0 ret=0 sig=0 core=0 reaper_tid=0
+```
+
+``Le syscall pour écrire dans le terminal le résultat du ls`` :
+
+```
+2215 14:31:23.532937709 1 ls (1410.1410) < write res=39 data=hello  .[0m.[01;36mmonsupermp3.mp3.[0m.
+```
+
+🌞 Utiliser sysdig pour tracer les syscalls effectués par cat
+
+```
+
+```
+
+``Le syscall qui demande l'ouverture du fichier en lecture`` :
+
+```
+[fmaxance@vbox ~]$ sysdig -r meo.scap | grep "openat" | grep "hello"
+534 14:41:22.373063117 0 cat (1424) > openat dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0
+535 14:41:22.373067092 0 cat (1424) < openat fd=3(<f>hello) dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0 dev=FD00 ino=34340143
+```
+
+``Le syscall qui écrit le contenu du fichier dans le terminal`` :
+
+```
+[fmaxance@vbox ~]$ sysdig -r meo.scap
+315 14:41:22.371295667 0 cat (1424.1424) < execve res=0 exe=cat args=hello. tid=1424(cat) pid=1424(cat) ptid=1367(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=29 vm_size=420 vm_rss=0 vm_swap=0 comm=cat cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1424(cat) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33896374 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/cat
+316 14:41:22.371314644 0 cat (1424.1424) > brk addr=0
+317 14:41:22.371315261 0 cat (1424.1424) < brk res=563BC9A96000 vm_size=420 vm_rss=128 vm_swap=0
+318 14:41:22.372403497 0 cat (1424.1424) > arch_prctl
+319 14:41:22.372404169 0 cat (1424.1424) < arch_prctl
+320 14:41:22.372423630 0 cat (1424.1424) > access mode=4(R_OK)
+321 14:41:22.372429829 0 cat (1424.1424) < access res=-2(ENOENT) name=/etc/ld.so.preload
+322 14:41:22.372434923 0 cat (1424.1424) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+323 14:41:22.372440354 0 cat (1424.1424) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=33685637
+324 14:41:22.372441084 0 cat (1424.1424) > fstat fd=3(<f>/etc/ld.so.cache)
+325 14:41:22.372443045 0 cat (1424.1424) < fstat res=0
+326 14:41:22.372443492 0 cat (1424.1424) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
+327 14:41:22.372447460 0 cat (1424.1424) < mmap res=139733375475712 vm_size=436 vm_rss=128 vm_swap=0
+...
+529 14:41:22.372890986 0 cat (1424.1424) < mmap res=139733375053824 vm_size=5584 vm_rss=1664 vm_swap=0
+530 14:41:22.372891189 0 cat (1424.1424) > close fd=3(<f>/usr/lib/locale/en_US.utf8/LC_CTYPE)
+531 14:41:22.372891357 0 cat (1424.1424) < close res=0
+532 14:41:22.373052470 0 cat (1424.1424) > fstat fd=1
+533 14:41:22.373062598 0 cat (1424.1424) < fstat res=0
+534 14:41:22.373063117 0 cat (1424.1424) > openat dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0
+535 14:41:22.373067092 0 cat (1424.1424) < openat fd=3(<f>hello) dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0 dev=FD00 ino=34340143
+536 14:41:22.373067524 0 cat (1424.1424) > fstat fd=3(<f>hello)
+537 14:41:22.373067887 0 cat (1424.1424) < fstat res=0
+538 14:41:22.373068183 0 cat (1424.1424) > fadvise64
+539 14:41:22.373068913 0 cat (1424.1424) < fadvise64
+540 14:41:22.373069680 0 cat (1424.1424) > mmap addr=0 length=139264 prot=3(PROT_READ|PROT_WRITE) flags=10(MAP_PRIVATE|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+541 14:41:22.373073223 0 cat (1424.1424) < mmap res=139733374914560 vm_size=5720 vm_rss=1792 vm_swap=0
+542 14:41:22.373090146 0 cat (1424.1424) > read fd=3(<f>hello) size=131072
+543 14:41:22.373104510 0 cat (1424.1424) < read res=14 data=Hello World !.
+544 14:41:22.373105166 0 cat (1424.1424) > write fd=1 size=14
+545 14:41:22.373110269 0 cat (1424.1424) > switch next=406 pgft_maj=0 pgft_min=109 vm_size=5720 vm_rss=1792 vm_swap=0
+546 14:41:22.373114512 0 cat (1424.1424) < write res=14 data=Hello World !.
+547 14:41:22.373115008 0 cat (1424.1424) > switch next=406 pgft_maj=0 pgft_min=109 vm_size=5720 vm_rss=1792 vm_swap=0
+548 14:41:22.373116437 0 cat (1424.1424) > read fd=3(<f>hello) size=131072
+549 14:41:22.373116808 0 cat (1424.1424) < read res=0 data=NULL
+550 14:41:22.373117189 0 cat (1424.1424) > munmap addr=7F16362CD000 length=139264
+551 14:41:22.373207093 0 cat (1424.1424) < munmap res=0 vm_size=5584 vm_rss=1792 vm_swap=0
+552 14:41:22.373207979 0 cat (1424.1424) > close fd=3(<f>hello)
+553 14:41:22.373209607 0 cat (1424.1424) < close res=0
+554 14:41:22.373211492 0 cat (1424.1424) > close fd=1
+555 14:41:22.373211715 0 cat (1424.1424) < close res=0
+556 14:41:22.373212177 0 cat (1424.1424) > close fd=2
+557 14:41:22.373212290 0 cat (1424.1424) < close res=0
+558 14:41:22.373215183 0 cat (1424.1424) > exit_group
+559 14:41:22.373257488 0 cat (1424.1424) > procexit status=0 ret=0 sig=0 core=0 reaper_tid=0
+560 14:41:22.851113443 1 cat (1425.1425) < execve res=0 exe=cat args=hello. tid=1425(cat) pid=1425(cat) ptid=1367(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=29 vm_size=420 vm_rss=0 vm_swap=0 comm=cat cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1425(cat) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33896374 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/cat
+561 14:41:22.851130703 1 cat (1425.1425) > brk addr=0
+562 14:41:22.851131155 1 cat (1425.1425) < brk res=562CB2B97000 vm_size=420 vm_rss=128 vm_swap=0
+563 14:41:22.852315071 1 cat (1425.1425) > arch_prctl
+564 14:41:22.852315769 1 cat (1425.1425) < arch_prctl
+565 14:41:22.852336008 1 cat (1425.1425) > access mode=4(R_OK)
+566 14:41:22.852341501 1 cat (1425.1425) < access res=-2(ENOENT) name=/etc/ld.so.preload
+567 14:41:22.852345683 1 cat (1425.1425) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+568 14:41:22.852351287 1 cat (1425.1425) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=33685637
+569 14:41:22.852351973 1 cat (1425.1425) > fstat fd=3(<f>/etc/ld.so.cache)
+570 14:41:22.852353560 1 cat (1425.1425) < fstat res=0
+571 14:41:22.852354021 1 cat (1425.1425) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
+572 14:41:22.852358443 1 cat (1425.1425) < mmap res=139800978092032 vm_size=436 vm_rss=128 vm_swap=0
+573 14:41:22.852358873 1 cat (1425.1425) > close fd=3(<f>/etc/ld.so.cache)
+574 14:41:22.852359168 1 cat (1425.1425) < close res=0
+575 14:41:22.852362741 1 cat (1425.1425) > openat dirfd=-100(AT_FDCWD) name=/lib64/libc.so.6 flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+576 14:41:22.852367906 1 cat (1425.1425) < openat fd=3(<f>/lib64/libc.so.6) dirfd=-100(AT_FDCWD) name=/lib64/libc.so.6 flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=50331794
+577 14:41:22.852368269 1 cat (1425.1425) > read fd=3(<f>/lib64/libc.so.6) size=832
+578 14:41:22.852369860 1 cat (1425.1425) < read res=832 data=.ELF..............>.............@.........&.........@.8...@.F.E.........@.......
+579 14:41:22.852370475 1 cat (1425.1425) > pread fd=3(<f>/lib64/libc.so.6) size=784 pos=64
+580 14:41:22.852371132 1 cat (1425.1425) < pread res=784 data=........@.......@.......@.......................................`'......`'......
+581 14:41:22.852371616 1 cat (1425.1425) > pread fd=3(<f>/lib64/libc.so.6) size=48 pos=848
+582 14:41:22.852371869 1 cat (1425.1425) < pread res=48 data=.... .......GNU.................................
+583 14:41:22.852372153 1 cat (1425.1425) > pread fd=3(<f>/lib64/libc.so.6) size=68 pos=896
+584 14:41:22.852372357 1 cat (1425.1425) < pread res=68 data=............GNU.z@.,...O=fvr2.6J..H`............GNU.................
+585 14:41:22.852372818 1 cat (1425.1425) > fstat fd=3(<f>/lib64/libc.so.6)
+586 14:41:22.852373479 1 cat (1425.1425) < fstat res=0
+587 14:41:22.852373742 1 cat (1425.1425) > mmap addr=0 length=8192 prot=3(PROT_READ|PROT_WRITE) flags=10(MAP_PRIVATE|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+588 14:41:22.852376456 1 cat (1425.1425) < mmap res=139800978083840 vm_size=444 vm_rss=128 vm_swap=0
+```
+
+``Le syscall qui écrit le contenu du fichier dans le terminal`` :
+
+```
+[fmaxance@vbox ~]$ sysdig -r meo.scap | grep "write"
+544 14:41:22.373105166 0 cat (1424) > write fd=1 size=14
+546 14:41:22.373114512 0 cat (1424) < write res=14 data=Hello World !.
+```
+
+🌞 Utiliser sysdig pour tracer les syscalls  effectués par votre utilisateur
+
+```
+[fmaxance@vbox ~]$ sudo sysdig -p"%evt.num %evt.time %proc.name %thread.tid %evt.type %evt.args"
+```
+
+🌞 Livrez le fichier curl.scap dans le dépôt git de rendu
+
+Le fichier ``curl.scap`` : [curl.scap](./curl.scap)
