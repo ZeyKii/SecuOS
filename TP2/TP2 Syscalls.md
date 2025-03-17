@@ -788,69 +788,30 @@ write(1, "Hello World !\n", 14) = 14
 🌞 Utiliser sysdig pour tracer les syscalls effectués par cat
 
 ```
-
-```
-
-``Le syscall qui demande l'ouverture du fichier en lecture`` :
-
-```
-[fmaxance@vbox ~]$ sysdig -r meo.scap | grep "openat" | grep "hello"
-534 14:41:22.373063117 0 cat (1424) > openat dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0
-535 14:41:22.373067092 0 cat (1424) < openat fd=3(<f>hello) dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0 dev=FD00 ino=34340143
-```
-
-``Le syscall qui écrit le contenu du fichier dans le terminal`` :
-
-```
-[fmaxance@vbox ~]$ sysdig -r meo.scap
-315 14:41:22.371295667 0 cat (1424.1424) < execve res=0 exe=cat args=hello. tid=1424(cat) pid=1424(cat) ptid=1367(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=29 vm_size=420 vm_rss=0 vm_swap=0 comm=cat cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1424(cat) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33896374 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/cat
-316 14:41:22.371314644 0 cat (1424.1424) > brk addr=0
-317 14:41:22.371315261 0 cat (1424.1424) < brk res=563BC9A96000 vm_size=420 vm_rss=128 vm_swap=0
-318 14:41:22.372403497 0 cat (1424.1424) > arch_prctl
-319 14:41:22.372404169 0 cat (1424.1424) < arch_prctl
-320 14:41:22.372423630 0 cat (1424.1424) > access mode=4(R_OK)
-321 14:41:22.372429829 0 cat (1424.1424) < access res=-2(ENOENT) name=/etc/ld.so.preload
-322 14:41:22.372434923 0 cat (1424.1424) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
-323 14:41:22.372440354 0 cat (1424.1424) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=33685637
-324 14:41:22.372441084 0 cat (1424.1424) > fstat fd=3(<f>/etc/ld.so.cache)
-325 14:41:22.372443045 0 cat (1424.1424) < fstat res=0
-326 14:41:22.372443492 0 cat (1424.1424) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
-327 14:41:22.372447460 0 cat (1424.1424) < mmap res=139733375475712 vm_size=436 vm_rss=128 vm_swap=0
+[fmaxance@vbox ~]$ sudo sysdig proc.name=cat
+1397 14:59:01.555480034 0 cat (1353.1353) < execve res=0 exe=cat args=hello. tid=1353(cat) pid=1353(cat) ptid=1314(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=27 vm_size=420 vm_rss=0 vm_swap=0 comm=cat cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1353(cat) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33896374 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/cat
+1398 14:59:01.555496340 0 cat (1353.1353) > brk addr=0
+1399 14:59:01.555496885 0 cat (1353.1353) < brk res=55FA38FD7000 vm_size=420 vm_rss=128 vm_swap=0
+1400 14:59:01.556488361 0 cat (1353.1353) > arch_prctl
+1401 14:59:01.556488993 0 cat (1353.1353) < arch_prctl
+1402 14:59:01.556507046 0 cat (1353.1353) > access mode=4(R_OK)
+1403 14:59:01.556511340 0 cat (1353.1353) < access res=-2(ENOENT) name=/etc/ld.so.preload
+1404 14:59:01.556513907 0 cat (1353.1353) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+1405 14:59:01.556517445 0 cat (1353.1353) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=34185391
+1406 14:59:01.556518283 0 cat (1353.1353) > fstat fd=3(<f>/etc/ld.so.cache)
+1407 14:59:01.556519748 0 cat (1353.1353) < fstat res=0
+1408 14:59:01.556520118 0 cat (1353.1353) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
+1409 14:59:01.556523669 0 cat (1353.1353) < mmap res=140606503944192 vm_size=436 vm_rss=128 vm_swap=0
+1410 14:59:01.556524020 0 cat (1353.1353) > close fd=3(<f>/etc/ld.so.cache)
+1411 14:59:01.556524267 0 cat (1353.1353) < close res=0
+1412 14:59:01.556527563 0 cat (1353.1353) > openat dirfd=-100(AT_FDCWD) name=/lib64/libc.so.6 flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+1413 14:59:01.556530239 0 cat (1353.1353) < openat fd=3(<f>/lib64/libc.so.6) dirfd=-100(AT_FDCWD) name=/lib64/libc.so.6 flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=50331794
+1414 14:59:01.556530599 0 cat (1353.1353) > read fd=3(<f>/lib64/libc.so.6) size=832
+1415 14:59:01.556532064 0 cat (1353.1353) < read res=832 data=.ELF..............>.............@.........&.........@.8...@.F.E.........@.......
+1416 14:59:01.556532497 0 cat (1353.1353) > pread fd=3(<f>/lib64/libc.so.6) size=784 pos=64
+1417 14:59:01.556533053 0 cat (1353.1353) < pread res=784 data=........@.......@.......@.......................................`'......`'......
+1418 14:59:01.556533479 0 cat (1353.1353) > pread fd=3(<f>/lib64/libc.so.6) size=48 pos=848
 ...
-529 14:41:22.372890986 0 cat (1424.1424) < mmap res=139733375053824 vm_size=5584 vm_rss=1664 vm_swap=0
-530 14:41:22.372891189 0 cat (1424.1424) > close fd=3(<f>/usr/lib/locale/en_US.utf8/LC_CTYPE)
-531 14:41:22.372891357 0 cat (1424.1424) < close res=0
-532 14:41:22.373052470 0 cat (1424.1424) > fstat fd=1
-533 14:41:22.373062598 0 cat (1424.1424) < fstat res=0
-534 14:41:22.373063117 0 cat (1424.1424) > openat dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0
-535 14:41:22.373067092 0 cat (1424.1424) < openat fd=3(<f>hello) dirfd=-100(AT_FDCWD) name=hello(hello) flags=1(O_RDONLY) mode=0 dev=FD00 ino=34340143
-536 14:41:22.373067524 0 cat (1424.1424) > fstat fd=3(<f>hello)
-537 14:41:22.373067887 0 cat (1424.1424) < fstat res=0
-538 14:41:22.373068183 0 cat (1424.1424) > fadvise64
-539 14:41:22.373068913 0 cat (1424.1424) < fadvise64
-540 14:41:22.373069680 0 cat (1424.1424) > mmap addr=0 length=139264 prot=3(PROT_READ|PROT_WRITE) flags=10(MAP_PRIVATE|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
-541 14:41:22.373073223 0 cat (1424.1424) < mmap res=139733374914560 vm_size=5720 vm_rss=1792 vm_swap=0
-542 14:41:22.373090146 0 cat (1424.1424) > read fd=3(<f>hello) size=131072
-543 14:41:22.373104510 0 cat (1424.1424) < read res=14 data=Hello World !.
-544 14:41:22.373105166 0 cat (1424.1424) > write fd=1 size=14
-545 14:41:22.373110269 0 cat (1424.1424) > switch next=406 pgft_maj=0 pgft_min=109 vm_size=5720 vm_rss=1792 vm_swap=0
-546 14:41:22.373114512 0 cat (1424.1424) < write res=14 data=Hello World !.
-547 14:41:22.373115008 0 cat (1424.1424) > switch next=406 pgft_maj=0 pgft_min=109 vm_size=5720 vm_rss=1792 vm_swap=0
-548 14:41:22.373116437 0 cat (1424.1424) > read fd=3(<f>hello) size=131072
-549 14:41:22.373116808 0 cat (1424.1424) < read res=0 data=NULL
-550 14:41:22.373117189 0 cat (1424.1424) > munmap addr=7F16362CD000 length=139264
-551 14:41:22.373207093 0 cat (1424.1424) < munmap res=0 vm_size=5584 vm_rss=1792 vm_swap=0
-552 14:41:22.373207979 0 cat (1424.1424) > close fd=3(<f>hello)
-553 14:41:22.373209607 0 cat (1424.1424) < close res=0
-554 14:41:22.373211492 0 cat (1424.1424) > close fd=1
-555 14:41:22.373211715 0 cat (1424.1424) < close res=0
-556 14:41:22.373212177 0 cat (1424.1424) > close fd=2
-557 14:41:22.373212290 0 cat (1424.1424) < close res=0
-558 14:41:22.373215183 0 cat (1424.1424) > exit_group
-559 14:41:22.373257488 0 cat (1424.1424) > procexit status=0 ret=0 sig=0 core=0 reaper_tid=0
-560 14:41:22.851113443 1 cat (1425.1425) < execve res=0 exe=cat args=hello. tid=1425(cat) pid=1425(cat) ptid=1367(bash) cwd=<NA> fdlimit=1024 pgft_maj=0 pgft_min=29 vm_size=420 vm_rss=0 vm_swap=0 comm=cat cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=SHELL=/bin/bash.HISTCONTROL=ignoredups.HISTSIZE=1000.HOSTNAME=vbox.PWD=/home/... tty=34817 pgid=1425(cat) loginuid=1000(fmaxance) flags=0 cap_inheritable=0 cap_permitted=0 cap_effective=0 exe_ino=33896374 exe_ino_ctime=2025-02-20 10:06:33.456577163 exe_ino_mtime=2024-11-06 17:29:20.000000000 uid=1000(fmaxance) trusted_exepath=/usr/bin/cat
-561 14:41:22.851130703 1 cat (1425.1425) > brk addr=0
-562 14:41:22.851131155 1 cat (1425.1425) < brk res=562CB2B97000 vm_size=420 vm_rss=128 vm_swap=0
 563 14:41:22.852315071 1 cat (1425.1425) > arch_prctl
 564 14:41:22.852315769 1 cat (1425.1425) < arch_prctl
 565 14:41:22.852336008 1 cat (1425.1425) > access mode=4(R_OK)
@@ -890,9 +851,117 @@ write(1, "Hello World !\n", 14) = 14
 🌞 Utiliser sysdig pour tracer les syscalls  effectués par votre utilisateur
 
 ```
-[fmaxance@vbox ~]$ sudo sysdig -p"%evt.num %evt.time %proc.name %thread.tid %evt.type %evt.args"
+[fmaxance@vbox ~]$ sudo sysdig user.name=fmaxance
 ```
 
 🌞 Livrez le fichier curl.scap dans le dépôt git de rendu
 
 Le fichier ``curl.scap`` : [curl.scap](./curl.scap)
+
+# Part III : Service Hardening
+
+🌞 Tracer l'exécution du programme NGINX
+
+```
+[fmaxance@vbox ~]$ sudo sysdig proc.name=nginx
+43420 16:07:22.174243627 0 nginx (1345.1345) < execve res=0 exe=/usr/sbin/nginx args=NULL tid=1345(nginx) pid=1345(nginx) ptid=1341(sudo) cwd=<NA> fdlimit=1024 pgft_maj=1 pgft_min=41 vm_size=1792 vm_rss=0 vm_swap=0 comm=nginx cgroups=cpuset=/.cpu=/.cpuacct=/.io=/.memory=/user.slice/user-1000.slice/session-3.sc... env=HISTSIZE=1000.HOSTNAME=vbox.LANG=en_US.UTF-8.LS_COLORS=rs=0:di=01;34:ln=01;36... tty=34817 pgid=1341(sudo) loginuid=1000(fmaxance) flags=1(EXE_WRITABLE) cap_inheritable=0 cap_permitted=1FFFFFFFFFF cap_effective=1FFFFFFFFFF exe_ino=50430358 exe_ino_ctime=2025-03-13 15:54:32.763537952 exe_ino_mtime=2024-11-08 17:44:11.000000000 uid=0(root) trusted_exepath=/usr/sbin/nginx
+43421 16:07:22.174258857 0 nginx (1345.1345) > brk addr=0
+43422 16:07:22.174259177 0 nginx (1345.1345) < brk res=55DEC5B5E000 vm_size=1792 vm_rss=128 vm_swap=0
+43432 16:07:22.175224038 0 nginx (1345.1345) > arch_prctl
+43433 16:07:22.175224586 0 nginx (1345.1345) < arch_prctl
+43434 16:07:22.175297128 0 nginx (1345.1345) > switch next=0 pgft_maj=1 pgft_min=51 vm_size=1792 vm_rss=128 vm_swap=0
+43437 16:07:22.176148484 0 nginx (1345.1345) > access mode=4(R_OK)
+43438 16:07:22.176152887 0 nginx (1345.1345) < access res=-2(ENOENT) name=/etc/ld.so.preload
+43439 16:07:22.176224229 0 nginx (1345.1345) > switch next=0 pgft_maj=2 pgft_min=53 vm_size=1792 vm_rss=256 vm_swap=0
+43441 16:07:22.176964508 0 nginx (1345.1345) > openat dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+43442 16:07:22.176968819 0 nginx (1345.1345) < openat fd=3(<f>/etc/ld.so.cache) dirfd=-100(AT_FDCWD) name=/etc/ld.so.cache flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=34185397
+43443 16:07:22.176969465 0 nginx (1345.1345) > fstat fd=3(<f>/etc/ld.so.cache)
+43444 16:07:22.176970177 0 nginx (1345.1345) < fstat res=0
+43445 16:07:22.176970402 0 nginx (1345.1345) > mmap addr=0 length=14083 prot=1(PROT_READ) flags=2(MAP_PRIVATE) fd=3(<f>/etc/ld.so.cache) offset=0
+43446 16:07:22.176974987 0 nginx (1345.1345) < mmap res=140079121248256 vm_size=1808 vm_rss=256 vm_swap=0
+43447 16:07:22.176975308 0 nginx (1345.1345) > close fd=3(<f>/etc/ld.so.cache)
+43448 16:07:22.176975644 0 nginx (1345.1345) < close res=0
+43449 16:07:22.176978493 0 nginx (1345.1345) > openat dirfd=-100(AT_FDCWD) name=/lib64/libcrypt.so.2 flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+43450 16:07:22.176982792 0 nginx (1345.1345) < openat fd=3(<f>/lib64/libcrypt.so.2) dirfd=-100(AT_FDCWD) name=/lib64/libcrypt.so.2 flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=50504754
+43451 16:07:22.176983177 0 nginx (1345.1345) > read fd=3(<f>/lib64/libcrypt.so.2) size=832
+43452 16:07:22.176984541 0 nginx (1345.1345) < read res=832 data=.ELF..............>.....P ......@.......(...........@.8...@.....................
+43453 16:07:22.176985147 0 nginx (1345.1345) > fstat fd=3(<f>/lib64/libcrypt.so.2)
+43454 16:07:22.176985395 0 nginx (1345.1345) < fstat res=0
+43455 16:07:22.176985671 0 nginx (1345.1345) > mmap addr=0 length=8192 prot=3(PROT_READ|PROT_WRITE) flags=10(MAP_PRIVATE|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+43456 16:07:22.176987212 0 nginx (1345.1345) < mmap res=140079121240064 vm_size=1816 vm_rss=256 vm_swap=0
+43457 16:07:22.176991149 0 nginx (1345.1345) > mmap addr=0 length=233728 prot=1(PROT_READ) flags=1026(MAP_PRIVATE|MAP_DENYWRITE) fd=3(<f>/lib64/libcrypt.so.2) offset=0
+43458 16:07:22.176993002 0 nginx (1345.1345) < mmap res=140079121002496 vm_size=2048 vm_rss=256 vm_swap=0
+43459 16:07:22.176993173 0 nginx (1345.1345) > mprotect addr=7F66B63F9000 length=188416 prot=0(PROT_NONE)
+43460 16:07:22.176997074 0 nginx (1345.1345) < mprotect res=0
+43461 16:07:22.176997740 0 nginx (1345.1345) > mmap addr=7F66B63F9000 length=81920 prot=5(PROT_READ|PROT_EXEC) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libcrypt.so.2) offset=8192
+43462 16:07:22.177001724 0 nginx (1345.1345) < mmap res=140079121010688 vm_size=2048 vm_rss=256 vm_swap=0
+43463 16:07:22.177001950 0 nginx (1345.1345) > mmap addr=7F66B640D000 length=102400 prot=1(PROT_READ) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libcrypt.so.2) offset=90112
+43464 16:07:22.177004479 0 nginx (1345.1345) < mmap res=140079121092608 vm_size=2048 vm_rss=256 vm_swap=0
+43465 16:07:22.177004677 0 nginx (1345.1345) > mmap addr=7F66B6427000 length=4096 prot=3(PROT_READ|PROT_WRITE) flags=1030(MAP_PRIVATE|MAP_FIXED|MAP_DENYWRITE) fd=3(<f>/lib64/libcrypt.so.2) offset=192512
+43466 16:07:22.177007719 0 nginx (1345.1345) < mmap res=140079121199104 vm_size=2048 vm_rss=256 vm_swap=0
+43467 16:07:22.177007944 0 nginx (1345.1345) > mmap addr=7F66B6428000 length=33024 prot=3(PROT_READ|PROT_WRITE) flags=14(MAP_PRIVATE|MAP_FIXED|MAP_ANONYMOUS) fd=-1(EPERM) offset=0
+43468 16:07:22.177009574 0 nginx (1345.1345) < mmap res=140079121203200 vm_size=2048 vm_rss=256 vm_swap=0
+43469 16:07:22.177014613 0 nginx (1345.1345) > close fd=3(<f>/lib64/libcrypt.so.2)
+43470 16:07:22.177014919 0 nginx (1345.1345) < close res=0
+43471 16:07:22.177016590 0 nginx (1345.1345) > openat dirfd=-100(AT_FDCWD) name=/lib64/libpcre.so.1 flags=4097(O_RDONLY|O_CLOEXEC) mode=0
+43472 16:07:22.177020680 0 nginx (1345.1345) < openat fd=3(<f>/lib64/libpcre.so.1) dirfd=-100(AT_FDCWD) name=/lib64/libpcre.so.1 flags=4097(O_RDONLY|O_CLOEXEC) mode=0 dev=FD00 ino=50505736
+43473 16:07:22.177021113 0 nginx (1345.1345) > read fd=3(<f>/lib64/libpcre.so.1) size=832
+43474 16:07:22.177022130 0 nginx (1345.1345) < read res=832 data=.ELF..............>......#......@........m..........@.8...@.....................
+43475 16:07:22.177022465 0 nginx (1345.1345) > fstat fd=3(<f>/lib64/libpcre.so.1)
+43476 16:07:22.177022842 0 nginx (1345.1345) < fstat res=0
+...
+```
+
+Après consultation de la page nginx : ``curl http://10.1.1.12/``
+
+```
+[fmaxance@vbox ~]$ sudo sysdig proc.name=nginx
+1950 16:09:24.860370923 1 nginx (1348.1348) < epoll_wait res=1
+1951 16:09:24.860383670 1 nginx (1348.1348) > accept4 flags=0
+1952 16:09:24.860390899 1 nginx (1348.1348) < accept4 fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) tuple=10.1.1.12:60884->10.1.1.12:80 queuepct=0 queuelen=0 queuemax=511
+1953 16:09:24.860397446 1 nginx (1348.1348) > epoll_ctl
+1954 16:09:24.860400184 1 nginx (1348.1348) < epoll_ctl
+1955 16:09:24.860401586 1 nginx (1348.1348) > epoll_wait maxevents=512
+1956 16:09:24.860402298 1 nginx (1348.1348) < epoll_wait res=1
+1957 16:09:24.860403513 1 nginx (1348.1348) > recvfrom fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) size=1024
+1958 16:09:24.860405619 1 nginx (1348.1348) < recvfrom res=73 data=GET / HTTP/1.1..Host: 10.1.1.12..User-Agent: curl/7.76.1..Accept: */*.... tuple=10.1.1.12:60884->10.1.1.12:80
+1959 16:09:24.860419275 1 nginx (1348.1348) > newfstatat
+1960 16:09:24.860427413 1 nginx (1348.1348) < newfstatat res=0 dirfd=-100(AT_FDCWD) path=/usr/share/nginx/html/index.html flags=0
+1961 16:09:24.860429888 1 nginx (1348.1348) > openat dirfd=-100(AT_FDCWD) name=/usr/share/nginx/html/index.html flags=65(O_NONBLOCK|O_RDONLY) mode=0
+1962 16:09:24.860433234 1 nginx (1348.1348) < openat fd=9(<f>/usr/share/nginx/html/index.html) dirfd=-100(AT_FDCWD) name=/usr/share/nginx/html/index.html flags=65(O_NONBLOCK|O_RDONLY) mode=0 dev=FD00 ino=17107267
+1963 16:09:24.860433895 1 nginx (1348.1348) > fstat fd=9(<f>/usr/share/nginx/html/index.html)
+1964 16:09:24.860434337 1 nginx (1348.1348) < fstat res=0
+1965 16:09:24.860443307 1 nginx (1348.1348) > setsockopt
+1966 16:09:24.860444427 1 nginx (1348.1348) < setsockopt res=0 fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) level=2(SOL_TCP) optname=0(UNKNOWN) val=.... optlen=4
+1967 16:09:24.860444975 1 nginx (1348.1348) > writev fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) size=240
+1968 16:09:24.860449530 1 nginx (1348.1348) < writev res=240 data=HTTP/1.1 200 OK..Server: nginx/1.20.1..Date: Thu, 13 Mar 2025 15:09:24 GMT..Cont
+1969 16:09:24.860450347 1 nginx (1348.1348) > sendfile out_fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) in_fd=9(<f>/usr/share/nginx/html/index.html) offset=0 size=7620
+1970 16:09:24.860454713 1 nginx (1348.1348) < sendfile res=7620 offset=7620
+1971 16:09:24.860459860 1 nginx (1348.1348) > write fd=5(<f>/var/log/nginx/access.log) size=91
+1972 16:09:24.860475297 1 nginx (1348.1348) < write res=91 data=10.1.1.12 - - [13/Mar/2025:16:09:24 +0100] "GET / HTTP/1.1" 200 7620 "-" "curl/7
+1973 16:09:24.860475911 1 nginx (1348.1348) > close fd=9(<f>/usr/share/nginx/html/index.html)
+1974 16:09:24.860477018 1 nginx (1348.1348) < close res=0
+1975 16:09:24.860478112 1 nginx (1348.1348) > setsockopt
+1976 16:09:24.860535616 1 nginx (1348.1348) < setsockopt res=0 fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) level=2(SOL_TCP) optname=0(UNKNOWN) val=.... optlen=4
+1977 16:09:24.860537925 1 nginx (1348.1348) > epoll_wait maxevents=512
+1978 16:09:24.860540517 1 nginx (1348.1348) > switch next=0 pgft_maj=2 pgft_min=308 vm_size=15524 vm_rss=5944 vm_swap=0
+2683 16:09:24.863183992 1 nginx (1348.1348) < epoll_wait res=1
+2684 16:09:24.863188208 1 nginx (1348.1348) > recvfrom fd=8(<4t>10.1.1.12:60884->10.1.1.12:80) size=1024
+2685 16:09:24.863190002 1 nginx (1348.1348) < recvfrom res=0 data=NULL tuple=10.1.1.12:60884->10.1.1.12:80
+2686 16:09:24.863191090 1 nginx (1348.1348) > close fd=8(<4t>10.1.1.12:60884->10.1.1.12:80)
+2687 16:09:24.863211795 1 nginx (1348.1348) < close res=0
+2688 16:09:24.863213181 1 nginx (1348.1348) > epoll_wait maxevents=512
+2689 16:09:24.863214406 1 nginx (1348.1348) > switch next=17 pgft_maj=2 pgft_min=308 vm_size=15524 vm_rss=5944 vm_swap=0
+```
+
+Après l'enregistrement du ``sysdig`` et son analyse :
+
+``sudo sysdig proc.name=nginx -w nginx.scap``
+
+```
+[fmaxance@vbox ~]$ sysdig -r nginx.scap | cut -d' ' -f7 | sort | uniq | tr -s '\n' ' '
+accept4 access arch_prctl bind brk clone close connect dup2 epoll_create epoll_create1 epoll_ctl epoll_wait eventfd2 execve exit_group fcntl fstat futex getdents64 geteuid getpid getppid getrandom gettid ioctl io_setup listen lseek mkdir mmap mprotect munmap newfstatat openat prctl prlimit procexit pwrite read recvfrom recvmsg rseq rt_sigaction rt_sigprocmask rt_sigreturn rt_sigsuspend sendfile sendmsg sendto setgid setgroups set_robust_list setsid setsockopt set_tid_address setuid signaldeliver socket socketpair statfs switch sysinfo timerfd_create timerfd_settime umask uname unlink wait4 write writev
+```
+
+🌞 HARDEN
+
