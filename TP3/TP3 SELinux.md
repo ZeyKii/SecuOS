@@ -444,7 +444,7 @@ Test Apache SELinux
 
 ---
 
-## 5. Conclusion
+# 5. Conclusion
 
 Récapitulatif des protections mises en place :
 - SSH durci
