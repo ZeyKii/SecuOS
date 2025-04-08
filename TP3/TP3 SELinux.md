@@ -36,6 +36,11 @@ sudo dnf update -y
 
 ## Renforcement de la configuration SSH
 
+Installation OpenSSH Server :
+```
+sudo apt install openssh-server
+```
+
 Fichier modifié :
 ``/etc/ssh/sshd_config``
 
